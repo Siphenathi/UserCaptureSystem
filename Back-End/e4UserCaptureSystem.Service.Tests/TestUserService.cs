@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using e4UserCaptureSystem.Service.Model;
@@ -10,7 +9,7 @@ namespace e4UserCaptureSystem.Service.Tests
 	public class TestUserService
 	{
 		[Test]
-		public async Task GetUserAsync_WhenCalled_ShouldReturnAllUsersFromXmlFile()
+		public async Task GetUserAsync_WhenCalled_ShouldReturnAllUsers()
 		{
 			//------------Arrange--------------
 			var sut = CreateUserService();
@@ -23,29 +22,175 @@ namespace e4UserCaptureSystem.Service.Tests
 		}
 
 		[Test]
-		public async Task Do()
+		public void CreateUser_WhenCalledWithInvalidUser_ShouldNotSaveUser()
+		{
+			//------------Arrange--------------
+			var sut = CreateUserService();
+
+			//------------Act------------------
+			var actual = sut.CreateUser(null);
+
+			//------------Assert---------------
+			actual.Message.Should().Be("Provided user details are invalid");
+		}
+
+		[Test]
+		public void CreateUser_WhenCalledWithValidUser_ShouldSaveFirstUser()
 		{
 			//------------Arrange--------------
 			var sut = CreateUserService();
 			var user = new User
 			{
-				UserId = Guid.NewGuid().ToString(),
+				UserId = "1",
 				FirstName = "John",
 				Surname = "Smith",
-				Contact = "0780319834"
+				Contact = "0780319837"
 			};
 
 			//------------Act------------------
-			sut.CreateUser(user);
-			var users = await sut.GetUsersAsync();
+			var actual = sut.CreateUser(user);
 
 			//------------Assert---------------
-			users.Count().Should().Be(3);
+			actual.Message.Should().Be("User created successfully");
+		}
+
+		[Test]
+		public void CreateUser_WhenCalledWithValidUser_ShouldSaveSecondUser()
+		{
+			//------------Arrange--------------
+			var sut = CreateUserService();
+			var user = new User
+			{
+				UserId = "2",
+				FirstName = "Sipho",
+				Surname = "Gumede",
+				Contact = "0785478435"
+			};
+
+			//------------Act------------------
+			var actual = sut.CreateUser(user);
+
+			//------------Assert---------------
+			actual.Message.Should().Be("User created successfully");
+		}
+
+		[Test]
+		public void UpdateUser_WhenCalledWithInvalidUserId_ShouldNotUpdateUser()
+		{
+			//------------Arrange--------------
+			var sut = CreateUserService();
+			var user = new User
+			{
+				UserId = null,
+				FirstName = "User1",
+				Surname = "surname1",
+				Contact = "0780319837"
+			};
+
+			//--------------Act----------------
+			var actual = sut.UpdateUser(user);
+
+			//-------------Assert--------------
+			actual.Message.Should().Be("Provided user details are invalid");
+		}
+
+		[Test]
+		public void UpdateUser_WhenCalledWithInvalidUser_ShouldNotUpdateUser()
+		{
+			//------------Arrange--------------
+			var sut = CreateUserService();
+
+			//--------------Act----------------
+			var actual = sut.UpdateUser(null);
+
+			//-------------Assert--------------
+			actual.Message.Should().Be("Provided user details are invalid");
+		}
+
+		[Test]
+		public void UpdateUser_WhenCalledWithNonExistingUser_ShouldNotUpdateUser()
+		{
+			//------------Arrange--------------
+			var sut = CreateUserService();
+			var user = new User
+			{
+				UserId = "1000",
+				FirstName = "User1",
+				Surname = "surname1",
+				Contact = "0780319837"
+			};
+
+			//--------------Act----------------
+			var actual = sut.UpdateUser(user);
+
+			//-------------Assert--------------
+			actual.Message.Should().Be("User not found");
+		}
+
+		[Test]
+		public void UpdateUser_WhenCalledWithExistingUser_ShouldUpdateUser()
+		{
+			//------------Arrange--------------
+			var sut = CreateUserService();
+			var user = new User
+			{
+				UserId = "2",
+				FirstName = "Khanyisani",
+				Surname = "Gatsheni",
+				Contact = "0780319837"
+			};
+
+			//--------------Act----------------
+			var actual = sut.UpdateUser(user);
+
+			//-------------Assert--------------
+			actual.Message.Should().Be("User updated successfully");
+		}
+
+		[TestCase("")]
+		[TestCase(" ")]
+		[TestCase(null)]
+		public void DeleteUser_WhenCalledWithInvalidUserId_ShouldNotDeleteUser(string userId)
+		{
+			//------------Arrange--------------
+			var sut = CreateUserService();
+
+			//--------------Act----------------
+			var actual = sut.DeleteUser(userId);
+
+			//-------------Assert--------------
+			actual.Message.Should().Be("Provided user details are invalid");
+		}
+
+		[Test]
+		public void DeleteUser_WhenCalledWithNonExistingUser_ShouldNotDeleteUser()
+		{
+			//------------Arrange--------------
+			var sut = CreateUserService();
+
+			//--------------Act----------------
+			var actual = sut.DeleteUser("1000");
+
+			//-------------Assert--------------
+			actual.Message.Should().Be("User not found");
+		}
+
+		[Test]
+		public void DeleteUser_WhenCalledWithExistingUserId_ShouldNotDeleteUser()
+		{
+			//------------Arrange--------------
+			var sut = CreateUserService();
+
+			//--------------Act----------------
+			var actual = sut.DeleteUser("1");
+
+			//-------------Assert--------------
+			actual.Message.Should().Be("User deleted successfully");
 		}
 
 		private static UserService CreateUserService()
 		{
-			return new UserService("Data/User.xml");
+			return new UserService("Data\\User.xml");
 		}
 	}
 }

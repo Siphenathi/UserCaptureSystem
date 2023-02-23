@@ -1,15 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Root>
-	<User>
-		<UserId>1010</UserId>
-		<FirsName>Sipho</FirsName>
-		<Surname>Gumede</Surname>
-		<Contact>0780329832</Contact>
-	</User>
-	<User>
-		<UserId>234bjh42</UserId>
-		<FirsName>Kungayo</FirsName>
-		<Surname>Kubheka</Surname>
-		<Contact>0785328832</Contact>
-	</User>
+  <User>
+    <UserId>2</UserId>
+    <FirstName>Khanyisani</FirstName>
+    <Surname>Gatsheni</Surname>
+    <Contact>0780319837</Contact>
+  </User>
 </Root>
