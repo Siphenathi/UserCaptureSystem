@@ -4,5 +4,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\e4UserCaptureSystem.Service\e4UserCaptureSystem.Service.csproj" />
+  </ItemGroup>
+
 
 </Project>

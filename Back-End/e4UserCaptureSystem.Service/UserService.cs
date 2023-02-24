@@ -8,7 +8,7 @@ using e4UserCaptureSystem.Service.Model;
 
 namespace e4UserCaptureSystem.Service
 {
-	public class UserService
+	public class UserService : IUserService
 	{
 		private string FilePath { get; }
 		private const string User = "User";
@@ -19,11 +19,11 @@ namespace e4UserCaptureSystem.Service
 
 		public UserService(string filePath)
 		{
-			var pathBase = Environment.CurrentDirectory[..Environment.CurrentDirectory.IndexOf("\\bin", StringComparison.Ordinal)];
-			FilePath = Path.Combine(pathBase, filePath);
+			FilePath = filePath;
 		}
+		//NB : IUserService.Method Force the use of interface instead of concrete implementation in declaration 
 
-		public Task<IEnumerable<User>> GetUsersAsync()
+		Task<IEnumerable<User>> IUserService.GetUsersAsync()
 		{
 			var xDoc = XDocument.Load(FilePath);
 			var collectionOfDescendentElements = xDoc.Root?.Descendants(User);
@@ -39,7 +39,7 @@ namespace e4UserCaptureSystem.Service
 			return Task.FromResult<IEnumerable<User>>(users);
 		}
 
-		public TransactionResponse CreateUser(User user)
+		TransactionResponse IUserService.CreateUser(User user)
 		{
 			if (user == null || string.IsNullOrWhiteSpace(user.UserId))
 				return CreateTransactionResponse(FeedBackType.Error, "Provided user details are invalid");
@@ -55,7 +55,7 @@ namespace e4UserCaptureSystem.Service
 			return CreateTransactionResponse(FeedBackType.Success, "User created successfully");
 		}
 
-		public TransactionResponse UpdateUser(User updatedUser)
+		TransactionResponse IUserService.UpdateUser(User updatedUser)
 		{
 			if(updatedUser == null || string.IsNullOrWhiteSpace(updatedUser.UserId))
 				return CreateTransactionResponse(FeedBackType.Error, "Provided user details are invalid");
@@ -73,7 +73,7 @@ namespace e4UserCaptureSystem.Service
 			return CreateTransactionResponse(FeedBackType.Success, "User updated successfully");
 		}
 
-		public TransactionResponse DeleteUser(string userId)
+		TransactionResponse IUserService.DeleteUser(string userId)
 		{
 			if (string.IsNullOrWhiteSpace(userId))
 				return CreateTransactionResponse(FeedBackType.Error, "Provided user details are invalid");

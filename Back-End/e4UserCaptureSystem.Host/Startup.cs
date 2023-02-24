@@ -1,3 +1,4 @@
+using e4UserCaptureSystem.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,7 +27,15 @@ namespace e4UserCaptureSystem.Host
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddCors(options =>
+			{
+				options.AddPolicy("default",
+					builder => builder.AllowAnyOrigin()
+						.AllowAnyMethod()
+						.AllowAnyHeader());
+			});
 			services.AddControllers();
+			services.AddScoped<IUserService>(serviceProvider => new UserService(GetFilePath()));
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,15 +47,21 @@ namespace e4UserCaptureSystem.Host
 			}
 
 			app.UseHttpsRedirection();
-
 			app.UseRouting();
-
-			app.UseAuthorization();
-
+			//app.UseAuthorization();
+			app.UseCors("default");
 			app.UseEndpoints(endpoints =>
 			{
-				endpoints.MapControllers();
+				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}");
 			});
+		}
+
+		private string GetFilePath()
+		{
+			return Path.Combine(
+				Environment.CurrentDirectory.Replace(
+					"e4UserCaptureSystem.Host", "e4UserCaptureSystem.Service"),
+				Configuration.GetValue<string>("FilePathInProject"));
 		}
 	}
 }

@@ -188,9 +188,9 @@ namespace e4UserCaptureSystem.Service.Tests
 			actual.Message.Should().Be("User deleted successfully");
 		}
 
-		private static UserService CreateUserService()
+		private static IUserService CreateUserService()
 		{
-			return new UserService("Data\\User.xml");
+			return new UserService(@"C:\\Users\\Siphenathi\\Documents\\Dev-Time\\Personal-Project\\Job Hunting\\e4\\e4UserCaptureSystem\\Back-End\\e4UserCaptureSystem.Service.Tests\\Data\\User.xml");
 		}
 	}
 }
