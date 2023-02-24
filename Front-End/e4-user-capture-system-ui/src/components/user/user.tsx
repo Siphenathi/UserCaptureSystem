@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -10,18 +10,20 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import { visuallyHidden } from "@mui/utils";
-import { UserModel } from "../model/userModel";
-import { UserHeadCell } from "../model/userHeadCell";
-import { UserEnhancedTableProps } from "../model/userEnhancedTableProps";
-import { SortingOrder } from "../model/sortingOrder";
+import {visuallyHidden} from "@mui/utils";
+import {UserModel} from "../model/userModel";
+import {EventType} from "../model/evenType";
+import {UserHeadCell} from "../model/userHeadCell";
+import {UserEnhancedTableProps} from "../model/userEnhancedTableProps";
+import {SortingOrder} from "../model/sortingOrder";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import UserFormDialog from "./userDialog";
 import CustomAlert from "../shared/customAlert";
 import axios from "axios";
-import { AlertModel } from "../model/alertModal";
+import {AlertModel} from "../model/alertModal";
+const baseUrl = "https://localhost:44374/api/v1/user/";
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -37,8 +39,8 @@ function getComparator<Key extends keyof any>(
   order: SortingOrder,
   orderBy: Key
 ): (
-  a: { [key in Key]: number | string },
-  b: { [key in Key]: number | string }
+  a: {[key in Key]: number | string},
+  b: {[key in Key]: number | string}
 ) => number {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
@@ -90,9 +92,13 @@ const User = () => {
   const [openUserDialog, setOpenUserDialog] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [alertDetails, setAlertDetails] = useState({} as AlertModel);
+  const [buttonClickEventType, setButtonClickEventType] = useState(
+    EventType.add
+  );
+  const [focusUser, setFocusUser] = useState({} as UserModel);
 
   const EnhancedTableHead = (props: UserEnhancedTableProps) => {
-    const { order, orderBy, onRequestSort } = props;
+    const {order, orderBy, onRequestSort} = props;
     const createSortHandler =
       (property: keyof UserModel) => (event: React.MouseEvent<unknown>) => {
         onRequestSort(event, property);
@@ -107,7 +113,7 @@ const User = () => {
               align="right"
               padding="normal"
               sortDirection={orderBy === headCell.id ? order : false}
-              sx={{ fontWeight: "bold" }}
+              sx={{fontWeight: "bold"}}
             >
               <TableSortLabel
                 active={orderBy === headCell.id}
@@ -171,31 +177,28 @@ const User = () => {
     return listOfUsers;
   };
 
-  const fetchAllUsers = () => {
-    const apiUrl = "https://localhost:44374/api/v1/user/getusers";
-    axios
-      .get(apiUrl)
-      .then((response) => {
-        var results = response.data as UserModel[];
-        console.log("All Users : ", results);
-        setUsersData(results);
-        setUsersInitialData(results);
-      })
-      .catch((error) => {
-        console.log(error);
-        setAlertDetails({
-          title: "Cannot get Employees",
-          description: error.message,
-          feedbackType: "error",
-        });
-        setOpenAlert(true);
-      });
+  const userButtonClickEventType = (
+    evenType: EventType,
+    user: UserModel
+  ): void => {
+    setButtonClickEventType(evenType);
+    setFocusUser(user);
+    setOpenUserDialog(true);
   };
 
-  const saveNewUser = (user: UserModel): void => {
-    const apiUrl = "https://localhost:44374/api/v1/user/create";
+  const onSubmitButtonClick = (user: UserModel): void => {
+    if (buttonClickEventType === EventType.add) callCreateUserApi(user);
+    if (buttonClickEventType === EventType.delete) callDeleteUserApi();
+    if (buttonClickEventType === EventType.update) callUpdateUserApi(user);
+  };
+
+  useEffect(() => {
+    fetchAllUsers();
+  }, [""]);
+
+  const callCreateUserApi = (user: UserModel) => {
     axios
-      .post(apiUrl, user)
+      .post(`${baseUrl}create`, user)
       .then((response) => {
         if (response.status === 200) {
           fetchAllUsers();
@@ -210,7 +213,26 @@ const User = () => {
       .catch((error) => {
         console.log(error);
         setAlertDetails({
-          title: "Cannot save Employee",
+          title: "Cannot save User",
+          description: `${error.message}.\t${error.response?.data?.errors?.Contact[0]}`,
+          feedbackType: "error",
+        });
+        setOpenAlert(true);
+      });
+  };
+
+  const fetchAllUsers = () => {
+    axios
+      .get(`${baseUrl}getusers`)
+      .then((response) => {
+        var results = response.data as UserModel[];
+        setUsersData(results);
+        setUsersInitialData(results);
+      })
+      .catch((error) => {
+        console.log(error);
+        setAlertDetails({
+          title: "Cannot get Employees",
           description: error.message,
           feedbackType: "error",
         });
@@ -218,26 +240,72 @@ const User = () => {
       });
   };
 
-  useEffect(() => {
-    fetchAllUsers();
-  }, [""]);
+  const callDeleteUserApi = () => {
+    axios
+      .delete(`${baseUrl}delete/${focusUser.userId}`)
+      .then((response) => {
+        if (response.status === 200) {
+          fetchAllUsers();
+          setAlertDetails({
+            title: "Success",
+            description: response.data.message,
+            feedbackType: "success",
+          });
+          setOpenAlert(true);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        setAlertDetails({
+          title: "Cannot delete User",
+          description: `${error.message}.\t${error.response?.data?.errors?.Contact[0]}`,
+          feedbackType: "error",
+        });
+        setOpenAlert(true);
+      });
+  };
+
+  const callUpdateUserApi = (user: UserModel) => {
+    axios
+      .put(`${baseUrl}update`, user)
+      .then((response) => {
+        if (response.status === 200) {
+          fetchAllUsers();
+          setAlertDetails({
+            title: "Success",
+            description: response.data.message,
+            feedbackType: "success",
+          });
+          setOpenAlert(true);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        setAlertDetails({
+          title: "Cannot update User",
+          description: `${error.message}.\t${error.response?.data?.errors?.Contact[0]}`,
+          feedbackType: "error",
+        });
+        setOpenAlert(true);
+      });
+  };
 
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - usersData.length) : 0;
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{width: "100%"}}>
       <Typography
         variant="h4"
         noWrap
         component="div"
         align="center"
-        sx={{ my: 3 }}
+        sx={{my: 3}}
       >
         Users
       </Typography>
 
-      <Grid spacing={2} columns={12} sx={{ mb: 2 }} container>
+      <Grid spacing={2} columns={12} sx={{mb: 2}} container>
         <Grid
           item
           xs={6}
@@ -263,12 +331,17 @@ const User = () => {
           justifyContent="center"
           alignItems="center"
         >
-          <Button variant="outlined" onClick={() => setOpenUserDialog(true)}>
+          <Button
+            variant="outlined"
+            onClick={() =>
+              userButtonClickEventType(EventType.add, {} as UserModel)
+            }
+          >
             Add New
           </Button>
         </Grid>
       </Grid>
-      <Paper sx={{ width: "100%", mb: 2 }}>
+      <Paper sx={{width: "100%", mb: 2}}>
         <TableContainer>
           <Table
             aria-labelledby="tableTitle"
@@ -286,7 +359,7 @@ const User = () => {
             <TableBody>
               {stableSort(usersData, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
+                .map((user, index) => {
                   return (
                     <TableRow
                       hover
@@ -296,11 +369,33 @@ const User = () => {
                       selected={false}
                     >
                       <TableCell component="th" scope="row" align="right">
-                        {row.userId}
+                        {user.userId}
                       </TableCell>
-                      <TableCell align="right">{row.firstName}</TableCell>
-                      <TableCell align="right">{row.surname}</TableCell>
-                      <TableCell align="right">{row.contact}</TableCell>
+                      <TableCell align="right">{user.firstName}</TableCell>
+                      <TableCell align="right">{user.surname}</TableCell>
+                      <TableCell align="right">{user.contact}</TableCell>
+                      <TableCell align="right">
+                        <Button
+                          variant="outlined"
+                          onClick={() =>
+                            userButtonClickEventType(EventType.update, user)
+                          }
+                          color="warning"
+                        >
+                          Update
+                        </Button>
+                      </TableCell>
+                      <TableCell align="right">
+                        <Button
+                          variant="outlined"
+                          onClick={() =>
+                            userButtonClickEventType(EventType.delete, user)
+                          }
+                          color="error"
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -334,7 +429,9 @@ const User = () => {
       <UserFormDialog
         openDialog={openUserDialog}
         setOpenUserDialogCallBack={setOpenUserDialog}
-        saveNewUserCallBack={saveNewUser}
+        onSubmitButtonClickCallBack={onSubmitButtonClick}
+        focusUser={focusUser}
+        buttonClickEventType={buttonClickEventType}
       />
     </Box>
   );

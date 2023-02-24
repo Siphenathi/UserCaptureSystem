@@ -1,15 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Root>
   <User>
+    <UserId>1a813127-48eb-4039-8e85-b58245dc3abb</UserId>
+    <FirstName>Senzo</FirstName>
+    <Surname>Meyiwa</Surname>
+    <Contact>0785680000</Contact>
+  </User>
+  <User>
+    <UserId>36ab1285-e2ce-4435-a381-137437b5adcb</UserId>
+    <FirstName>Azola</FirstName>
+    <Surname>Peter</Surname>
+    <Contact>0783254689</Contact>
+  </User>
+  <User>
+    <UserId>e1af4c5d-66c4-4d51-8b16-66e28636d85c</UserId>
+    <FirstName>Kungayo </FirstName>
+    <Surname>Kubheka </Surname>
+    <Contact>0780436745</Contact>
+  </User>
+  <User>
+    <UserId>153a3457-abaf-43c9-a6af-2bdbf1ebb440</UserId>
+    <FirstName>Luyanda</FirstName>
+    <Surname>Zondani</Surname>
+    <Contact>0569745213</Contact>
+  </User>
+  <User>
+    <UserId>a27d5a95-bf4a-4df9-b145-d99a8aa092b1</UserId>
+    <FirstName>Zizipho</FirstName>
+    <Surname>Marasha</Surname>
+    <Contact>0452136875</Contact>
+  </User>
+  <User>
+    <UserId>37a0fb9c-d199-4524-b551-5336b2ed946c</UserId>
+    <FirstName>Shoes</FirstName>
+    <Surname>Mushew</Surname>
+    <Contact>0785412365</Contact>
+  </User>
+  <User>
     <UserId>89319559-4a2a-4d1c-9906-e4d6da51718b</UserId>
     <FirstName>Siwamkele</FirstName>
     <Surname>Pantshwa</Surname>
     <Contact>0780326739</Contact>
-  </User>
-  <User>
-    <UserId>1010</UserId>
-    <FirstName>Kungayo</FirstName>
-    <Surname>Kubheka</Surname>
-    <Contact>0780436745</Contact>
   </User>
 </Root>

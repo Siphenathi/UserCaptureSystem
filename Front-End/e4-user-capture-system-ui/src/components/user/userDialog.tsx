@@ -1,4 +1,4 @@
-import { useState, forwardRef } from "react";
+import {useState, forwardRef, useEffect} from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -6,15 +6,16 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
+import {TransitionProps} from "@mui/material/transitions";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { UserModel } from "../model/userModel";
+import {UserModel} from "../model/userModel";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
+import {EventType} from "../model/evenType";
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -28,10 +29,12 @@ const Transition = forwardRef(function Transition(
 const UserFormDialog = (props: {
   openDialog: boolean;
   setOpenUserDialogCallBack: any;
-  saveNewUserCallBack: any;
+  onSubmitButtonClickCallBack: any;
+  focusUser: UserModel;
+  buttonClickEventType: EventType;
 }) => {
-  const [UserFirstName, setUserFirstName] = useState("");
-  const [UserSurname, setUserSurname] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [surname, setSurname] = useState("");
   const [contact, setContact] = useState("");
 
   const handleClose = () => {
@@ -40,7 +43,10 @@ const UserFormDialog = (props: {
   };
 
   const disableSubmitButton = (): boolean => {
-    return UserFirstName === "" || UserSurname === "" || contact === ""
+    // console.log("FirstName :", firstName);
+    // console.log("Surname :", surname);
+    // console.log("Contact :", contact);
+    return firstName === "" || surname === "" || contactIsNotValid(contact)
       ? true
       : false;
   };
@@ -48,20 +54,44 @@ const UserFormDialog = (props: {
   const onSubmit = () => {
     handleClose();
     let userToBeRegistered: UserModel = {
-      userId: "",
-      firstName: UserFirstName,
-      surname: UserSurname,
+      userId: props.focusUser.userId,
+      firstName: firstName,
+      surname: surname,
       contact: contact,
     };
     clearDialogState();
-    props.saveNewUserCallBack(userToBeRegistered);
+    props.onSubmitButtonClickCallBack(userToBeRegistered);
   };
 
   const clearDialogState = (): void => {
-    setUserFirstName("");
-    setUserSurname("");
+    setFirstName("");
+    setSurname("");
     setContact("");
   };
+
+  const contactIsNotValid = (contact: string): boolean => {
+    return (
+      contact == null ||
+      contact === "" ||
+      isNaN(Number(contact)) ||
+      contact.length != 10
+    );
+  };
+
+  const getDialogTitle = (): any => {
+    if (props.buttonClickEventType === EventType.update) return "Update User";
+    return props.buttonClickEventType === EventType.delete
+      ? "Delete this User?"
+      : "Register User";
+  };
+
+  useEffect(() => {
+    if (props.focusUser) {
+      setFirstName(props.focusUser?.firstName);
+      setSurname(props.focusUser?.surname);
+      setContact(props.focusUser?.contact);
+    }
+  }, [props]);
 
   return (
     <div>
@@ -72,7 +102,7 @@ const UserFormDialog = (props: {
       >
         <DialogTitle>
           <Typography variant="h4" noWrap component="div" align="center">
-            Register User
+            {getDialogTitle()}
           </Typography>
         </DialogTitle>
         <Divider />
@@ -82,12 +112,13 @@ const UserFormDialog = (props: {
               <TextField
                 autoFocus
                 margin="dense"
-                id="name"
-                label="Name"
-                type="email"
+                id="firstname"
+                label="FirstName"
                 variant="standard"
                 required={true}
-                onChange={(event: any) => setUserFirstName(event.target.value)}
+                onChange={(event: any) => setFirstName(event.target.value)}
+                // defaultValue={firstName}
+                value={firstName}
               />
             </Grid>
             <Grid item xs={6}>
@@ -98,19 +129,23 @@ const UserFormDialog = (props: {
                 label="Surname"
                 variant="standard"
                 required={true}
-                onChange={(event: any) => setUserSurname(event.target.value)}
+                onChange={(event: any) => setSurname(event.target.value)}
+                // defaultValue={surname}
+                value={surname}
               />
             </Grid>
             <Grid item xs={6}>
               <TextField
                 autoFocus
                 margin="dense"
-                id="dateofbirth"
-                label="Date of Birth"
+                id="contact"
+                label="Contact"
                 variant="standard"
                 required={true}
-                type="date"
                 onChange={(event: any) => setContact(event.target.value)}
+                // defaultValue={contact}
+                value={contact}
+                type="number"
               />
             </Grid>
           </Grid>
