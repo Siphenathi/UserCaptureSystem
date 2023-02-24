@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -17,8 +19,13 @@ namespace e4UserCaptureSystem.Service
 
 		public UserService(string filePath)
 		{
+			if (string.IsNullOrWhiteSpace(filePath))
+				throw new ArgumentNullException(nameof(filePath));
+			if (!File.Exists(filePath))
+				throw new FileNotFoundException($"No file found in this path : {filePath}");
 			FilePath = filePath;
 		}
+
 		//NB : IUserService.Method Force the use of interface instead of concrete implementation in declaration 
 
 		Task<IEnumerable<User>> IUserService.GetUsersAsync()

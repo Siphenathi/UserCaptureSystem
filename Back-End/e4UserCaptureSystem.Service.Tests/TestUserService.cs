@@ -10,6 +10,44 @@ namespace e4UserCaptureSystem.Service.Tests
 {
 	public class TestUserService
 	{
+		[TestCase("")]
+		[TestCase(" ")]
+		[TestCase(null)]
+		public void UserService_WhenCalledWithInvalidFilePath_ShouldThrowException(string filePath)
+		{
+			//------------Arrange------------
+			var sut = CreateUserService();
+
+			//------------Act---------------
+			var actual = Assert.Throws<ArgumentNullException>(() =>
+			{
+				var userService = new UserService(filePath);
+			});
+
+			//------------Assert--------------
+			actual.Should().BeOfType<ArgumentNullException>();
+			actual?.Message.Should().Be("Value cannot be null. (Parameter 'filePath')");
+		}
+
+		[TestCase("hfjhh/www/")]
+		[TestCase("===============")]
+		[TestCase("C:\\Users\\Siphenathi\\Documents\\Dev-Time\\Personal-Project\\Job Hunting\\e4\\e4UserCaptureSystem")]
+		public void UserService_WhenCalledWithNonExistingFilePath_ShouldThrowException(string filePath)
+		{
+			//------------Arrange------------
+			var sut = CreateUserService();
+
+			//------------Act---------------
+			var actual = Assert.Throws<FileNotFoundException>(() =>
+			{
+				var userService = new UserService(filePath);
+			});
+
+			//------------Assert--------------
+			actual.Should().BeOfType<FileNotFoundException>();
+			actual?.Message.Should().Contain("No file found in this path");
+		}
+
 		[Test]
 		public async Task GetUserAsync_WhenCalled_ShouldReturnAllUsers()
 		{
