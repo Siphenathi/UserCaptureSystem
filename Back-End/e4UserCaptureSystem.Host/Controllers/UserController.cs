@@ -20,8 +20,8 @@ namespace e4UserCaptureSystem.Host.Controllers
 		}
 
 		[HttpGet]
-		[Route("api/v1/[controller]")]
-		public async Task<ActionResult<IEnumerable<User>>> GetUsersAsync()
+		[Route("api/v1/[controller]/GetUsers")]
+		public async Task<ActionResult<IEnumerable<User>>> GetUsers()
 		{
 			var users = await _userService.GetUsersAsync();
 			return !users.Any() ? StatusCode(404, "No user found yet!") : new ActionResult<IEnumerable<User>>(users);
@@ -29,7 +29,7 @@ namespace e4UserCaptureSystem.Host.Controllers
 
 		[HttpPost]
 		[Route("api/v1/[controller]/Create")]
-		public async Task<ActionResult> Create(UserRegistrationViewModel userRegistrationViewModel)
+		public async Task<IActionResult> Create(UserRegistrationViewModel userRegistrationViewModel)
 		{
 			try
 			{
@@ -48,28 +48,28 @@ namespace e4UserCaptureSystem.Host.Controllers
 			}
 		}
 
-		[HttpPost]
+		[HttpPut]
 		[Route("api/v1/[controller]/Update")]
-		public Task<ActionResult> Update(UserUpdateViewModel userUpdateViewModel)
+		public Task<IActionResult> Update(UserUpdateViewModel userUpdateViewModel)
 		{
 			try
 			{
 				var transactionResponse = _userService.UpdateUser(MapToUser(userUpdateViewModel));
 				if (transactionResponse.FeedBackType == FeedBackType.Warning)
-					return Task.FromResult<ActionResult>(NotFound(transactionResponse.Message));
-				return Task.FromResult<ActionResult>(transactionResponse.FeedBackType == FeedBackType.Success ?
+					return Task.FromResult<IActionResult>(NotFound(transactionResponse.Message));
+				return Task.FromResult<IActionResult>(transactionResponse.FeedBackType == FeedBackType.Success ?
 					StatusCode(200, transactionResponse.Message) :
 					StatusCode(400, transactionResponse.Message));
 			}
 			catch (Exception exception)
 			{
-				return Task.FromResult<ActionResult>(StatusCode(500, exception.Message));
+				return Task.FromResult<IActionResult>(StatusCode(500, exception.Message));
 			}
 		}
 
 		[HttpDelete]
 		[Route("api/v1/[controller]/Delete/{userId}")]
-		public  ActionResult Create(string userId)
+		public IActionResult Delete(string userId)
 		{
 			try
 			{

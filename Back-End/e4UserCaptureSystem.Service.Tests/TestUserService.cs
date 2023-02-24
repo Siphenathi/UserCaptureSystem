@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using e4UserCaptureSystem.Service.Model;
@@ -190,7 +192,10 @@ namespace e4UserCaptureSystem.Service.Tests
 
 		private static IUserService CreateUserService()
 		{
-			return new UserService(@"C:\\Users\\Siphenathi\\Documents\\Dev-Time\\Personal-Project\\Job Hunting\\e4\\e4UserCaptureSystem\\Back-End\\e4UserCaptureSystem.Service.Tests\\Data\\User.xml");
+			//NB: File path finding is the production code. It shouldn't be here, was left with no choice or have hardcoded filepath
+			var pathBase = Environment.CurrentDirectory[..Environment.CurrentDirectory.IndexOf("\\bin", StringComparison.Ordinal)];
+			var filePath = Path.Combine(pathBase, "Data\\User.xml");
+			return new UserService(filePath);
 		}
 	}
 }
